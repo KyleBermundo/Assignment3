@@ -27,7 +27,7 @@ public class ShopManager : Singleton<ShopManager>
 
     void LoadShop()
     {
-        List<A_Base> artifacts = ArtifactManager.instance.GetRandomArtifacts(6);
+        LinkedList<A_Base> artifacts = new LinkedList<A_Base>(ArtifactManager.instance.GetRandomArtifacts(6)); //  Changed to LinkedList
         foreach (A_Base a in artifacts)
         {
             Instantiate(shopItemPrefab, transform).GetComponent<ShopItem>().Visualize(a);

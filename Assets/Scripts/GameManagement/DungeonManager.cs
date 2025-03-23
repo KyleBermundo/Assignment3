@@ -10,7 +10,7 @@ public class DungeonManager : Singleton<DungeonManager>
 
     public Room CurrentRoom { get { return currentRoom; } }
     Room currentRoom;
-    List<Room> bossRooms = new List<Room>();
+    
     List<Room> rooms;
 
     // Generation variables
