@@ -10,7 +10,7 @@ public class DungeonManager : Singleton<DungeonManager>
 
     public Room CurrentRoom { get { return currentRoom; } }
     Room currentRoom;
-    Room bossRoom;
+    List<Room> bossRooms = new List<Room>();
     List<Room> rooms;
 
     // Generation variables
@@ -65,6 +65,8 @@ public class DungeonManager : Singleton<DungeonManager>
     /// generates boss key at next lowest point excluding boss door room and boss door room parent
     /// to avoid having the key generate near boss door
     /// </summary>
+    List<Room> bossRooms = new List<Room>(); // Allows multiple boss rooms if needed
+
     void GenerateBossRoom(int _stage)
     {
         // Find deepest rooms
@@ -74,23 +76,30 @@ public class DungeonManager : Singleton<DungeonManager>
             if (rooms[i].depth > _depth)
                 _depth = rooms[i].depth;
         }
+
         // Randomly determine boss room
         List<Room> _bossDoorRooms = RoomsAtDepth(_depth, null);
         Room _bossDoorRoom = _bossDoorRooms[Random.Range(0, _bossDoorRooms.Count)];
+
         // Spawn boss door
         EC_Entity _bossDoor = SpawnEntity(gen.bossDoorPrefab, _bossDoorRoom);
         _bossDoor.GetComponent<EC_Door>().SetLocked(true);
-        // Create boss room
-        bossRoom = CreateBossRoom(_stage, _depth + 1, _bossDoorRoom);
-        bossRoom.parentRoom.children.Add(bossRoom);
-        _bossDoor.GetComponent<EC_Door>().destination = bossRoom;
+
+        // Create boss room and store in list instead of single variable
+        Room newBossRoom = CreateBossRoom(_stage, _depth + 1, _bossDoorRoom);
+        newBossRoom.parentRoom.children.Add(newBossRoom);
+        _bossDoor.GetComponent<EC_Door>().destination = newBossRoom;
+
+        bossRooms.Add(newBossRoom); // Store boss room in the list
 
         // Randomly determine boss key room
         List<Room> _keyRooms = RoomsAtDepth(_depth, new List<Room>() { _bossDoorRoom, _bossDoorRoom.parentRoom });
         Room _keyRoom = _keyRooms[Random.Range(0, _keyRooms.Count)];
+
         EC_Entity _bossKey = SpawnEntity(gen.bossKeyPrefab, _keyRoom);
         _bossKey.GetComponent<EC_StageKey>().keyDoor = _bossDoor.GetComponent<EC_Door>();
     }
+
 
     /// <summary>
     /// Generates rooms for each door with no destination
