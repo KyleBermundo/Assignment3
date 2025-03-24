@@ -10,6 +10,7 @@ public class DungeonManager : Singleton<DungeonManager>
 
     public Room CurrentRoom { get { return currentRoom; } }
     Room currentRoom;
+    Room bossRoom;
     List<Room> bossRooms = new List<Room>();
     List<Room> rooms;
 
@@ -52,7 +53,7 @@ public class DungeonManager : Singleton<DungeonManager>
         // Iteratively generate layers
         GenerateLayer(stage, 1);
         // Generate boss room
-        GenerateBossRoom(stage);
+        GenerateBossRooms(stage);
 
         // Enter first room
         SwitchRoom(rooms[0]);
@@ -65,39 +66,50 @@ public class DungeonManager : Singleton<DungeonManager>
     /// generates boss key at next lowest point excluding boss door room and boss door room parent
     /// to avoid having the key generate near boss door
     /// </summary>
-    List<Room> bossRooms = new List<Room>(); // Allows multiple boss rooms if needed
 
-    void GenerateBossRoom(int _stage)
+
+    void GenerateBossRooms(int _stage, int bossRoomCount = 2) // Default to 2 boss rooms
     {
-        // Find deepest rooms
-        int _depth = 0;
-        for (int i = 0; i < rooms.Count; i++)
+        int _deepestDepth = 0;
+
+        // Find deepest depth
+        foreach (Room room in rooms)
         {
-            if (rooms[i].depth > _depth)
-                _depth = rooms[i].depth;
+            if (room.depth > _deepestDepth)
+                _deepestDepth = room.depth;
         }
 
-        // Randomly determine boss room
-        List<Room> _bossDoorRooms = RoomsAtDepth(_depth, null);
-        Room _bossDoorRoom = _bossDoorRooms[Random.Range(0, _bossDoorRooms.Count)];
+        List<int> usedDepths = new List<int>();
 
-        // Spawn boss door
-        EC_Entity _bossDoor = SpawnEntity(gen.bossDoorPrefab, _bossDoorRoom);
-        _bossDoor.GetComponent<EC_Door>().SetLocked(true);
+        for (int i = 0; i < bossRoomCount; i++)
+        {
+            int depthToUse = _deepestDepth - i; // Spread out depths
+            if (depthToUse < 0) break; // Prevent negative depth
 
-        // Create boss room and store in list instead of single variable
-        Room newBossRoom = CreateBossRoom(_stage, _depth + 1, _bossDoorRoom);
-        newBossRoom.parentRoom.children.Add(newBossRoom);
-        _bossDoor.GetComponent<EC_Door>().destination = newBossRoom;
+            usedDepths.Add(depthToUse);
 
-        bossRooms.Add(newBossRoom); // Store boss room in the list
+            List<Room> possibleBossRooms = RoomsAtDepth(depthToUse, null);
+            if (possibleBossRooms.Count == 0) continue;
 
-        // Randomly determine boss key room
-        List<Room> _keyRooms = RoomsAtDepth(_depth, new List<Room>() { _bossDoorRoom, _bossDoorRoom.parentRoom });
-        Room _keyRoom = _keyRooms[Random.Range(0, _keyRooms.Count)];
+            Room _bossDoorRoom = possibleBossRooms[Random.Range(0, possibleBossRooms.Count)];
 
-        EC_Entity _bossKey = SpawnEntity(gen.bossKeyPrefab, _keyRoom);
-        _bossKey.GetComponent<EC_StageKey>().keyDoor = _bossDoor.GetComponent<EC_Door>();
+            EC_Entity _bossDoor = SpawnEntity(gen.bossDoorPrefab, _bossDoorRoom);
+            _bossDoor.GetComponent<EC_Door>().SetLocked(true);
+
+            Room newBossRoom = CreateBossRoom(_stage, depthToUse + 1, _bossDoorRoom);
+            newBossRoom.parentRoom.children.Add(newBossRoom);
+            _bossDoor.GetComponent<EC_Door>().destination = newBossRoom;
+
+            bossRooms.Add(newBossRoom);
+
+            List<Room> _keyRooms = RoomsAtDepth(depthToUse, new List<Room>() { _bossDoorRoom, _bossDoorRoom.parentRoom });
+            if (_keyRooms.Count > 0)
+            {
+                Room _keyRoom = _keyRooms[Random.Range(0, _keyRooms.Count)];
+                EC_Entity _bossKey = SpawnEntity(gen.bossKeyPrefab, _keyRoom);
+                _bossKey.GetComponent<EC_StageKey>().keyDoor = _bossDoor.GetComponent<EC_Door>();
+            }
+        }
     }
 
 
