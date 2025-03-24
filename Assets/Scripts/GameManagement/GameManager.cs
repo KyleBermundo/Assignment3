@@ -105,6 +105,4 @@ public class GameManager : Singleton<GameManager>
         // Load end screen
         SceneManager.instance.LoadScene(5);
     }
-
-
 }

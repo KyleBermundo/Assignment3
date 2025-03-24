@@ -4,71 +4,70 @@ using UnityEngine;
 public class PlayerWallet : MonoBehaviour
 {
     public int money;
-    private bool infiniteMoneyEnabled = false; // Flag for infinite money
+    private bool infiniteMoneyEnabled = false; // Cheat flag
 
-    // Variables
-    [HideInInspector] public int extraCoins; // When picking up coins, also add extra coins
+    // Extra coins when picking up money
+    [HideInInspector] public int extraCoins;
 
-    // Components
-    [SerializeField] Counter counter;
-    ScaleAnimator anim;
+    // UI Components
+    [SerializeField] private Counter counter;
+    private ScaleAnimator anim;
+
+    private const int MaxMoney = int.MaxValue; // Maximum possible money
 
     void Awake()
     {
         extraCoins = 0;
-        anim = counter.transform.parent.GetComponent<ScaleAnimator>();
+        anim = counter?.transform.parent.GetComponent<ScaleAnimator>(); // Avoid potential null reference
         UpdateCounter();
     }
 
     void Update()
     {
-        // Press "I" to activate infinite money
         if (Input.GetKeyDown(KeyCode.I))
         {
             EnableInfiniteMoney();
         }
     }
 
-    void UpdateCounter()
+    private void UpdateCounter()
     {
         if (counter == null) return;
+
         counter.SetText(money.ToString(), 3);
-        if (ShopManager.instance != null)
-            ShopManager.instance.ReloadPrices();
+        ShopManager.instance?.ReloadPrices(); // Shorter null check
     }
 
     public void AddMoney(int value, int count = 1)
     {
-        if (infiniteMoneyEnabled) return; // Prevent modifying money if cheat is on
+        int totalValue = value + extraCoins * count;
+        if (infiniteMoneyEnabled || totalValue <= 0) return;
 
-        value += extraCoins * count;
-        if (value <= 0) return;
-
-        money += value;
-        PlayerStats.instance.coinsCollected += value;
+        money += totalValue;
+        PlayerStats.instance.coinsCollected += totalValue;
 
         if (Player.instance == null) return;
+
         UpdateCounter();
-        anim.SetScale(new Vector2(1.5f, 1.5f));
+        anim?.SetScale(new Vector2(1.5f, 1.5f)); // Safe null check
     }
 
     public void Buy(int cost)
     {
         if (!infiniteMoneyEnabled)
         {
-            money -= cost; // Only subtract money if cheat is OFF
+            money -= cost; // Only subtract money if the cheat is OFF
         }
 
         UpdateCounter();
-        anim.SetScale(new Vector2(1.5f, 1.5f));
-        SoundManager.instance.PlaySound("Buy");
+        anim?.SetScale(new Vector2(1.5f, 1.5f));
+        SoundManager.instance?.PlaySound("Buy"); // Safe null check
     }
 
-    // Cheat Code: Infinite Money
     public void EnableInfiniteMoney()
     {
         infiniteMoneyEnabled = true;
-        money = int.MaxValue;
+        money = MaxMoney;
         UpdateCounter();
         Debug.Log("Infinite money activated!");
     }
