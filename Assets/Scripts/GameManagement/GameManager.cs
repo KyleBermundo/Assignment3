@@ -5,11 +5,6 @@ using UnityEngine;
 public class GameManager : Singleton<GameManager>
 {
 
-    List<KeyCode> cheatCode = new List<KeyCode>
-    {
-        KeyCode.UpArrow
-    };
-    int cheatIndex = 0;
 
     [Header("Components")]
     public TurnManager turnManager;
