@@ -1,8 +1,16 @@
 using benjohnson;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class GameManager : Singleton<GameManager>
 {
+
+    List<KeyCode> cheatCode = new List<KeyCode>
+    {
+        KeyCode.UpArrow
+    };
+    int cheatIndex = 0;
+
     [Header("Components")]
     public TurnManager turnManager;
 
@@ -27,6 +35,8 @@ public class GameManager : Singleton<GameManager>
     void Update()
     {
         timeSinceGameStarted += Time.deltaTime;
+
+
     }
 
     public void DungeonLoaded()
@@ -100,4 +110,6 @@ public class GameManager : Singleton<GameManager>
         // Load end screen
         SceneManager.instance.LoadScene(5);
     }
+
+
 }

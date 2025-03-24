@@ -48,4 +48,6 @@ public class ShopManager : Singleton<ShopManager>
             child.GetComponent<ShopItem>().UpdateCounter(Player.instance.Wallet.money);
         }
     }
+
+ 
 }
