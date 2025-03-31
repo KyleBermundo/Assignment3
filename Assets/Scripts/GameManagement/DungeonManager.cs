@@ -8,17 +8,17 @@ public class DungeonManager : Singleton<DungeonManager>
 {
     public GenerationSettingsSO gen;
 
-    public Room CurrentRoom => currentRoom;
-    private Room currentRoom;
-    private Room bossRoom;
-    private List<Room> bossRooms = new List<Room>();
-    private List<Room> rooms = new List<Room>();
-    private List<EC_Door> doorsToFill = new List<EC_Door>();
-    private bool portalGenerated = false;
+ public Room CurrentRoom => currentRoom;
+ private Room currentRoom;
+ private Room bossRoom;
+ private List<Room> bossRooms = new List<Room>();
+ private List<Room> rooms = new List<Room>();
+ private List<EC_Door> doorsToFill = new List<EC_Door>();
+ private bool portalGenerated = false;
 
-    [Header("Components")]
-    [SerializeField] private DungeonMapRenderer mapRenderer;
-    [HideInInspector] public ArrangeGrid gridLayout;
+ [Header("Components")]
+ [SerializeField] private DungeonMapRenderer mapRenderer;
+ [HideInInspector] public ArrangeGrid gridLayout;
 
     protected override void Awake()
     {

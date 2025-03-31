@@ -26,22 +26,21 @@ public class ShopManager : Singleton<ShopManager>
         LoadShop();
     }
 
-    private void LoadShop()
-    {
-        if (shopItemPrefab == null || ArtifactManager.instance == null) return;
+     private void LoadShop()
+ {
+     if (shopItemPrefab == null || ArtifactManager.instance == null) return;
 
-        // Using LinkedList to store artifacts
-        LinkedList<A_Base> artifacts = new LinkedList<A_Base>(ArtifactManager.instance.GetRandomArtifacts(6));
+     // Using LinkedList to store artifacts
+     LinkedList<A_Base> artifacts = new LinkedList<A_Base>(ArtifactManager.instance.GetRandomArtifacts(6));
 
-        foreach (A_Base artifact in artifacts)
-        {
-            Instantiate(shopItemPrefab, transform)?.GetComponent<ShopItem>()?.Visualize(artifact);
-        }
+     foreach (A_Base artifact in artifacts)
+     {
+         Instantiate(shopItemPrefab, transform)?.GetComponent<ShopItem>()?.Visualize(artifact);
+     }
 
-        gridLayout?.Arrange();
-        ReloadPrices();
-    }
-
+     gridLayout?.Arrange();
+     ReloadPrices();
+ }
     public void ExitShop()
     {
         GameManager.instance?.LoadNextStage();
